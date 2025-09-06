@@ -17,7 +17,7 @@ const Login = () => {
     const onChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    const onSubmit = async (e) => {
+  const onSubmit = async (e) => {
         e.preventDefault();
         try {
             const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, formData);
@@ -26,8 +26,14 @@ const Login = () => {
 
             navigate('/');
         } catch (err) {
-            console.error(err.response.data);
-            alert('Login failed. Please check your credentials.');
+            // Check if there is a response object before trying to access its data
+            if (err.response) {
+                console.error(err.response.data);
+                alert('Login failed. Please check your credentials.');
+            } else {
+                console.error('Network or server error:', err.message);
+                alert('Login failed due to a network or server error. Please try again later.');
+            }
         }
     };
 
