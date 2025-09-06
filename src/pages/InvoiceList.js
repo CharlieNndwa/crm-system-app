@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { IoMdAdd } from 'react-icons/io';
 import { MdDelete, MdEdit } from 'react-icons/md';
-import { FaEye } from 'react-icons/fa'; // New Import
+import { FaEye } from 'react-icons/fa';
 import '../App.css';
 
 const InvoiceList = () => {
@@ -23,7 +23,7 @@ const InvoiceList = () => {
             }
 
             try {
-                const res = await axios.get('http://localhost:5001/api/invoices', {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices`, {
                     headers: { 'x-auth-token': token },
                 });
                 setInvoices(res.data);
@@ -46,7 +46,7 @@ const InvoiceList = () => {
         if (window.confirm('Are you sure you want to delete this invoice?')) {
             const token = localStorage.getItem('token');
             try {
-                await axios.delete(`http://localhost:5001/api/invoices/${invoiceId}`, {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/invoices/${invoiceId}`, {
                     headers: { 'x-auth-token': token },
                 });
                 setInvoices(invoices.filter((invoice) => invoice.invoice_id !== invoiceId));

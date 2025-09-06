@@ -12,7 +12,7 @@ const DealForm = () => {
         stage: 'Prospecting',
         amount: '',
     });
-    const [customers, setCustomers] = useState([]); // New state to store customers
+    const [customers, setCustomers] = useState([]);
     const navigate = useNavigate();
 
     const { deal_name, customer_id, stage, amount } = formData;
@@ -21,7 +21,7 @@ const DealForm = () => {
         const fetchCustomers = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5001/api/customers', {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers`, {
                     headers: { 'x-auth-token': token }
                 });
                 setCustomers(res.data);
@@ -31,7 +31,7 @@ const DealForm = () => {
         };
 
         fetchCustomers();
-    }, []); // Empty dependency array ensures this runs only once
+    }, []);
 
     const onChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -41,8 +41,8 @@ const DealForm = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.post(
-                'http://localhost:5001/api/deals',
+            await axios.post(
+                `${import.meta.env.VITE_API_URL}/api/deals`,
                 formData,
                 {
                     headers: {
@@ -52,7 +52,7 @@ const DealForm = () => {
             );
 
             alert('Deal added successfully!');
-            navigate('/deals'); // Navigate back to the deals list
+            navigate('/deals');
         } catch (err) {
             console.error(err.response.data);
             alert('Failed to add deal. Please try again.');
@@ -79,13 +79,8 @@ const DealForm = () => {
                     />
                 </div>
                 <div className="form-group">
-                    <label>Select Customer</label>
-                    <select
-                        name="customer_id"
-                        value={customer_id}
-                        onChange={onChange}
-                        required
-                    >
+                    <label htmlFor="customer_id">Customer</label>
+                    <select name="customer_id" value={customer_id} onChange={onChange} required>
                         <option value="">-- Select a Customer --</option>
                         {customers.map(customer => (
                             <option key={customer.customer_id} value={customer.customer_id}>

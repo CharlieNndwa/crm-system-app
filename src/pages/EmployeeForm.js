@@ -29,7 +29,7 @@ const EmployeeForm = () => {
         try {
             const token = localStorage.getItem('token');
             await axios.post(
-                'http://localhost:5001/api/employees',
+                `${import.meta.env.VITE_API_URL}/api/employees`,
                 formData,
                 {
                     headers: {

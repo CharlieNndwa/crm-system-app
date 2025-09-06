@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import '../App.css'; 
+import '../App.css';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -22,8 +22,8 @@ const Signup = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5001/api/auth/register', formData);
-            
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/register`, formData);
+
             // Redirect to login page after successful signup
             navigate('/login');
             alert('Signup successful! You can now log in.');

@@ -20,10 +20,10 @@ const Login = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post('http://localhost:5001/api/auth/login', formData);
-            
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, formData);
+
             localStorage.setItem('token', res.data.token);
-            
+
             navigate('/');
         } catch (err) {
             console.error(err.response.data);
@@ -62,11 +62,11 @@ const Login = () => {
                         />
                     </div>
                     <button type="submit" className="btn btn-primary">Login</button>
+                    <p className="forgot-password-link">
+                        <Link to="/forgot-password">Forgot Password?</Link>
+                    </p>
+                    <p>Don't have an account? <a href="/signup">Sign Up</a></p>
                 </form>
-                 <p className="forgot-password-link">
-                    <Link to="/forgot-password">Forgot Password?</Link>
-                </p>
-                <p>Don't have an account? <a href="/signup">Sign Up</a></p>
             </motion.div>
         </div>
     );

@@ -15,8 +15,8 @@ const InvoiceForm = () => {
         amount_due: '',
         status: 'Pending',
     });
-    const [customers, setCustomers] = useState([]); // New state for customers
-    const [deals, setDeals] = useState([]);       // New state for deals
+    const [customers, setCustomers] = useState([]);
+    const [deals, setDeals] = useState([]);
     const [isEditMode, setIsEditMode] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -31,24 +31,17 @@ const InvoiceForm = () => {
 
         const fetchRelatedData = async () => {
             try {
-                // Fetch customers and deals concurrently
                 const [customersRes, dealsRes] = await Promise.all([
-                    axios.get('http://localhost:5001/api/customers', { headers: { 'x-auth-token': token } }),
-                    axios.get('http://localhost:5001/api/deals', { headers: { 'x-auth-token': token } }),
+                    axios.get(`${import.meta.env.VITE_API_URL}/api/customers`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${import.meta.env.VITE_API_URL}/api/deals`, { headers: { 'x-auth-token': token } }),
                 ]);
                 setCustomers(customersRes.data);
                 setDeals(dealsRes.data);
-            } catch (err) {
-                console.error('Error fetching related data:', err.response?.data);
-            }
-        };
 
-        const fetchInvoice = async () => {
-            if (id) {
-                setIsEditMode(true);
-                setLoading(true);
-                try {
-                    const res = await axios.get(`http://localhost:5001/api/invoices/${id}`, {
+                if (id) {
+                    setIsEditMode(true);
+                    setLoading(true);
+                    const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`, {
                         headers: { 'x-auth-token': token },
                     });
                     const invoiceData = res.data;
@@ -61,16 +54,16 @@ const InvoiceForm = () => {
                         amount_due: invoiceData.amount_due,
                         status: invoiceData.status,
                     });
-                } catch (err) {
-                    console.error('Error fetching invoice:', err.response?.data);
-                } finally {
                     setLoading(false);
                 }
+            } catch (err) {
+                console.error('Failed to fetch related data or invoice:', err);
+                setLoading(false);
+                alert('Failed to load form data.');
             }
         };
 
         fetchRelatedData();
-        fetchInvoice();
     }, [id, navigate]);
 
     const onChange = (e) => {
@@ -81,26 +74,32 @@ const InvoiceForm = () => {
         e.preventDefault();
         setLoading(true);
         const token = localStorage.getItem('token');
+        const config = {
+            headers: { 'x-auth-token': token },
+        };
+
         try {
             if (isEditMode) {
-                await axios.put(`http://localhost:5001/api/invoices/${id}`, formData, {
-                    headers: { 'x-auth-token': token },
-                });
+                const updateData = {
+                    status: formData.status,
+                    amount_due: formData.amount_due,
+                };
+                await axios.put(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`, updateData, config);
                 alert('Invoice updated successfully!');
             } else {
-                await axios.post('http://localhost:5001/api/invoices', formData, {
-                    headers: { 'x-auth-token': token },
-                });
+                await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices`, formData, config);
                 alert('Invoice created successfully!');
             }
             navigate('/invoices');
         } catch (err) {
-            console.error(err.response?.data);
+            console.error('Failed to save invoice:', err.response?.data);
             alert('Failed to save invoice. Please try again.');
         } finally {
             setLoading(false);
         }
     };
+
+    if (loading && isEditMode) return <p>Loading invoice details...</p>;
 
     return (
         <motion.div
@@ -110,7 +109,7 @@ const InvoiceForm = () => {
             className="content-container"
         >
             <h2>{isEditMode ? 'Edit Invoice' : 'Create New Invoice'}</h2>
-            <form onSubmit={onSubmit} className="form-card">
+            <form className="form-card" onSubmit={onSubmit}>
                 <div className="form-group">
                     <label htmlFor="customer_id">Customer</label>
                     <select
@@ -119,6 +118,7 @@ const InvoiceForm = () => {
                         value={formData.customer_id}
                         onChange={onChange}
                         required
+                        disabled={isEditMode}
                     >
                         <option value="">-- Select a Customer --</option>
                         {customers.map((customer) => (
@@ -135,6 +135,7 @@ const InvoiceForm = () => {
                         name="deal_id"
                         value={formData.deal_id}
                         onChange={onChange}
+                        disabled={isEditMode}
                     >
                         <option value="">-- Select a Deal (Optional) --</option>
                         {deals.map((deal) => (
@@ -152,6 +153,7 @@ const InvoiceForm = () => {
                         name="invoice_number"
                         value={formData.invoice_number}
                         onChange={onChange}
+                        readOnly={isEditMode}
                         required
                     />
                 </div>
@@ -163,6 +165,7 @@ const InvoiceForm = () => {
                         name="issue_date"
                         value={formData.issue_date}
                         onChange={onChange}
+                        readOnly={isEditMode}
                         required
                     />
                 </div>
@@ -174,6 +177,7 @@ const InvoiceForm = () => {
                         name="due_date"
                         value={formData.due_date}
                         onChange={onChange}
+                        readOnly={isEditMode}
                         required
                     />
                 </div>

@@ -22,7 +22,7 @@ const EmployeeList = () => {
             }
 
             try {
-                const res = await axios.get('http://localhost:5001/api/employees', {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/employees`, {
                     headers: {
                         'x-auth-token': token
                     }
@@ -47,7 +47,7 @@ const EmployeeList = () => {
         if (window.confirm('Are you sure you want to delete this employee?')) {
             const token = localStorage.getItem('token');
             try {
-                await axios.delete(`http://localhost:5001/api/employees/${employeeId}`, {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/employees/${employeeId}`, {
                     headers: {
                         'x-auth-token': token
                     }

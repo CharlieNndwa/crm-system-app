@@ -16,8 +16,8 @@ const TaskForm = () => {
         deal_id: '',
     });
     const [employees, setEmployees] = useState([]);
-    const [customers, setCustomers] = useState([]); // New state for customers
-    const [deals, setDeals] = useState([]);       // New state for deals
+    const [customers, setCustomers] = useState([]);
+    const [deals, setDeals] = useState([]);
     const [isEditMode, setIsEditMode] = useState(false);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -32,39 +32,41 @@ const TaskForm = () => {
 
         const fetchRelatedData = async () => {
             try {
-                // Fetch employees, customers, and deals concurrently
                 const [employeesRes, customersRes, dealsRes] = await Promise.all([
-                    axios.get('http://localhost:5001/api/employees', { headers: { 'x-auth-token': token } }),
-                    axios.get('http://localhost:5001/api/customers', { headers: { 'x-auth-token': token } }),
-                    axios.get('http://localhost:5001/api/deals', { headers: { 'x-auth-token': token } }),
+                    axios.get(`${import.meta.env.VITE_API_URL}/api/employees`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${import.meta.env.VITE_API_URL}/api/customers`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${import.meta.env.VITE_API_URL}/api/deals`, { headers: { 'x-auth-token': token } }),
                 ]);
                 setEmployees(employeesRes.data);
                 setCustomers(customersRes.data);
                 setDeals(dealsRes.data);
-            } catch (err) {
-                console.error('Error fetching related data:', err.response?.data);
-            }
-        };
 
-        const fetchTask = async () => {
-            if (id) {
-                setIsEditMode(true);
-                setLoading(true);
-                try {
-                    const res = await axios.get(`http://localhost:5001/api/tasks/${id}`, {
+                if (id) {
+                    const taskRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/tasks/${id}`, {
                         headers: { 'x-auth-token': token },
                     });
-                    setFormData(res.data);
-                } catch (err) {
-                    console.error('Error fetching task:', err.response?.data);
-                } finally {
-                    setLoading(false);
+                    const taskData = taskRes.data;
+                    setFormData({
+                        task_name: taskData.task_name,
+                        description: taskData.description,
+                        due_date: taskData.due_date.split('T')[0],
+                        status: taskData.status,
+                        assigned_to: taskData.assigned_to,
+                        customer_id: taskData.customer_id,
+                        deal_id: taskData.deal_id,
+                    });
+                    setIsEditMode(true);
                 }
+            } catch (err) {
+                console.error('Error fetching related data or task:', err);
+                alert('Failed to load form data.');
+            } finally {
+                setLoading(false);
             }
         };
 
+        setLoading(true);
         fetchRelatedData();
-        fetchTask();
     }, [id, navigate]);
 
     const onChange = (e) => {
@@ -75,26 +77,28 @@ const TaskForm = () => {
         e.preventDefault();
         setLoading(true);
         const token = localStorage.getItem('token');
+        const config = {
+            headers: { 'x-auth-token': token },
+        };
+
         try {
             if (isEditMode) {
-                await axios.put(`http://localhost:5001/api/tasks/${id}`, formData, {
-                    headers: { 'x-auth-token': token },
-                });
+                await axios.put(`${import.meta.env.VITE_API_URL}/api/tasks/${id}`, formData, config);
                 alert('Task updated successfully!');
             } else {
-                await axios.post('http://localhost:5001/api/tasks', formData, {
-                    headers: { 'x-auth-token': token },
-                });
+                await axios.post(`${import.meta.env.VITE_API_URL}/api/tasks`, formData, config);
                 alert('Task added successfully!');
             }
             navigate('/tasks');
         } catch (err) {
-            console.error(err.response?.data);
+            console.error(err.response.data);
             alert('Failed to save task. Please try again.');
         } finally {
             setLoading(false);
         }
     };
+
+    if (loading && isEditMode) return <p>Loading task details...</p>;
 
     return (
         <motion.div
@@ -104,7 +108,7 @@ const TaskForm = () => {
             className="content-container"
         >
             <h2>{isEditMode ? 'Edit Task' : 'Add New Task'}</h2>
-            <form onSubmit={onSubmit} className="form-card">
+            <form className="form-card" onSubmit={onSubmit}>
                 <div className="form-group">
                     <label htmlFor="task_name">Task Name</label>
                     <input
@@ -123,8 +127,7 @@ const TaskForm = () => {
                         name="description"
                         value={formData.description}
                         onChange={onChange}
-                        required
-                    ></textarea>
+                    />
                 </div>
                 <div className="form-group">
                     <label htmlFor="due_date">Due Date</label>
@@ -134,12 +137,16 @@ const TaskForm = () => {
                         name="due_date"
                         value={formData.due_date}
                         onChange={onChange}
-                        required
                     />
                 </div>
                 <div className="form-group">
                     <label htmlFor="status">Status</label>
-                    <select id="status" name="status" value={formData.status} onChange={onChange}>
+                    <select
+                        id="status"
+                        name="status"
+                        value={formData.status}
+                        onChange={onChange}
+                    >
                         <option value="Pending">Pending</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Completed">Completed</option>
@@ -147,7 +154,12 @@ const TaskForm = () => {
                 </div>
                 <div className="form-group">
                     <label htmlFor="assigned_to">Assigned To</label>
-                    <select id="assigned_to" name="assigned_to" value={formData.assigned_to} onChange={onChange} required>
+                    <select
+                        id="assigned_to"
+                        name="assigned_to"
+                        value={formData.assigned_to}
+                        onChange={onChange}
+                    >
                         <option value="">-- Select Employee --</option>
                         {employees.map((employee) => (
                             <option key={employee.employee_id} value={employee.employee_id}>

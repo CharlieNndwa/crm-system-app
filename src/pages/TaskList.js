@@ -25,8 +25,8 @@ const TaskList = () => {
             try {
                 // Fetch both tasks and employees
                 const [tasksRes, employeesRes] = await Promise.all([
-                    axios.get('http://localhost:5001/api/tasks', { headers: { 'x-auth-token': token } }),
-                    axios.get('http://localhost:5001/api/employees', { headers: { 'x-auth-token': token } })
+                    axios.get(`${import.meta.env.VITE_API_URL}/api/tasks`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${import.meta.env.VITE_API_URL}/api/employees`, { headers: { 'x-auth-token': token } })
                 ]);
 
                 // Map employee IDs to names for easy lookup
@@ -57,7 +57,7 @@ const TaskList = () => {
         if (window.confirm('Are you sure you want to delete this task?')) {
             const token = localStorage.getItem('token');
             try {
-                await axios.delete(`http://localhost:5001/api/tasks/${taskId}`, {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/tasks/${taskId}`, {
                     headers: { 'x-auth-token': token }
                 });
                 setTasks(tasks.filter(task => task.task_id !== taskId));

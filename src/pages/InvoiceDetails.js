@@ -28,8 +28,8 @@ const InvoiceDetails = () => {
 
         try {
             const [invoiceRes, paymentsRes] = await Promise.all([
-                axios.get(`http://localhost:5001/api/invoices/${id}`, config),
-                axios.get(`http://localhost:5001/api/payments/invoice/${id}`, config),
+                axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`, config),
+                axios.get(`${import.meta.env.VITE_API_URL}/api/payments/invoice/${id}`, config),
             ]);
 
             setInvoice(invoiceRes.data);
@@ -42,12 +42,12 @@ const InvoiceDetails = () => {
 
             if (totalPaid >= amountDue && invoiceRes.data.status !== 'Paid') {
                 await axios.put(
-                    `http://localhost:5001/api/invoices/${id}`,
+                    `${import.meta.env.VITE_API_URL}/api/invoices/${id}`,
                     { status: 'Paid', amount_due: 0 },
                     config
                 );
                 // Re-fetch to show the updated status
-                const updatedInvoiceRes = await axios.get(`http://localhost:5001/api/invoices/${id}`, config);
+                const updatedInvoiceRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`, config);
                 setInvoice(updatedInvoiceRes.data);
             }
 
@@ -73,7 +73,7 @@ const InvoiceDetails = () => {
 
         try {
             await axios.post(
-                'http://localhost:5001/api/payments',
+                `${import.meta.env.VITE_API_URL}/api/payments`,
                 { ...paymentFormData, invoice_id: id },
                 config
             );

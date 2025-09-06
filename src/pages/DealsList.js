@@ -4,7 +4,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { IoMdAdd } from 'react-icons/io';
-import { MdDelete, MdEdit } from 'react-icons/md'; // Import the new icons
+import { MdDelete, MdEdit } from 'react-icons/md';
 import '../App.css';
 
 const DealsList = () => {
@@ -22,7 +22,7 @@ const DealsList = () => {
             }
 
             try {
-                const res = await axios.get('http://localhost:5001/api/deals', {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/deals`, {
                     headers: {
                         'x-auth-token': token
                     }
@@ -47,7 +47,7 @@ const DealsList = () => {
         if (window.confirm('Are you sure you want to delete this deal?')) {
             const token = localStorage.getItem('token');
             try {
-                await axios.delete(`http://localhost:5001/api/deals/${dealId}`, {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/deals/${dealId}`, {
                     headers: { 'x-auth-token': token },
                 });
                 setDeals(deals.filter((deal) => deal.deal_id !== dealId));

@@ -22,7 +22,7 @@ const InventoryList = () => {
             }
 
             try {
-                const res = await axios.get('http://localhost:5001/api/inventory', {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/inventory`, {
                     headers: { 'x-auth-token': token },
                 });
                 setInventoryItems(res.data);
@@ -45,7 +45,7 @@ const InventoryList = () => {
         if (window.confirm('Are you sure you want to delete this item?')) {
             const token = localStorage.getItem('token');
             try {
-                await axios.delete(`http://localhost:5001/api/inventory/${itemId}`, {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/inventory/${itemId}`, {
                     headers: { 'x-auth-token': token },
                 });
                 setInventoryItems(inventoryItems.filter((item) => item.item_id !== itemId));
