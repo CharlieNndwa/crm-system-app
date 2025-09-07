@@ -29,7 +29,7 @@ const EmployeeForm = () => {
         try {
             const token = localStorage.getItem('token');
             await axios.post(
-                `${import.meta.env.VITE_API_URL}/api/employees`,
+                `${process.env.REACT_APP_API_URL}/api/employees`,
                 formData,
                 {
                     headers: {

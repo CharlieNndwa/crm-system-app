@@ -24,7 +24,7 @@ const InventoryForm = () => {
                 setLoading(true);
                 const token = localStorage.getItem('token');
                 try {
-                    const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/inventory/${id}`, {
+                    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/inventory/${id}`, {
                         headers: { 'x-auth-token': token },
                     });
                     const itemData = res.data;
@@ -60,10 +60,10 @@ const InventoryForm = () => {
 
         try {
             if (isEditMode) {
-                await axios.put(`${import.meta.env.VITE_API_URL}/api/inventory/${id}`, formData, config);
+                await axios.put(`${process.env.REACT_APP_API_URL}/api/inventory/${id}`, formData, config);
                 alert('Inventory item updated successfully!');
             } else {
-                await axios.post(`${import.meta.env.VITE_API_URL}/api/inventory`, formData, config);
+                await axios.post(`${process.env.REACT_APP_API_URL}/api/inventory`, formData, config);
                 alert('Inventory item added successfully!');
             }
             navigate('/inventory');

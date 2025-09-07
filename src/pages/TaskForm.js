@@ -33,16 +33,16 @@ const TaskForm = () => {
         const fetchRelatedData = async () => {
             try {
                 const [employeesRes, customersRes, dealsRes] = await Promise.all([
-                    axios.get(`${import.meta.env.VITE_API_URL}/api/employees`, { headers: { 'x-auth-token': token } }),
-                    axios.get(`${import.meta.env.VITE_API_URL}/api/customers`, { headers: { 'x-auth-token': token } }),
-                    axios.get(`${import.meta.env.VITE_API_URL}/api/deals`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/employees`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/customers`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/deals`, { headers: { 'x-auth-token': token } }),
                 ]);
                 setEmployees(employeesRes.data);
                 setCustomers(customersRes.data);
                 setDeals(dealsRes.data);
 
                 if (id) {
-                    const taskRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/tasks/${id}`, {
+                    const taskRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/tasks/${id}`, {
                         headers: { 'x-auth-token': token },
                     });
                     const taskData = taskRes.data;
@@ -83,10 +83,10 @@ const TaskForm = () => {
 
         try {
             if (isEditMode) {
-                await axios.put(`${import.meta.env.VITE_API_URL}/api/tasks/${id}`, formData, config);
+                await axios.put(`${process.env.REACT_APP_API_URL}/api/tasks/${id}`, formData, config);
                 alert('Task updated successfully!');
             } else {
-                await axios.post(`${import.meta.env.VITE_API_URL}/api/tasks`, formData, config);
+                await axios.post(`${process.env.REACT_APP_API_URL}/api/tasks`, formData, config);
                 alert('Task added successfully!');
             }
             navigate('/tasks');

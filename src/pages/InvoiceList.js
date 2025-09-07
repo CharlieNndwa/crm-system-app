@@ -23,7 +23,7 @@ const InvoiceList = () => {
             }
 
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices`, {
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invoices`, {
                     headers: { 'x-auth-token': token },
                 });
                 setInvoices(res.data);
@@ -46,7 +46,7 @@ const InvoiceList = () => {
         if (window.confirm('Are you sure you want to delete this invoice?')) {
             const token = localStorage.getItem('token');
             try {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/api/invoices/${invoiceId}`, {
+                await axios.delete(`${process.env.REACT_APP_API_URL}/api/invoices/${invoiceId}`, {
                     headers: { 'x-auth-token': token },
                 });
                 setInvoices(invoices.filter((invoice) => invoice.invoice_id !== invoiceId));

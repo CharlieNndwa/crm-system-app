@@ -22,7 +22,7 @@ const DealsList = () => {
             }
 
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/deals`, {
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/deals`, {
                     headers: {
                         'x-auth-token': token
                     }
@@ -47,7 +47,7 @@ const DealsList = () => {
         if (window.confirm('Are you sure you want to delete this deal?')) {
             const token = localStorage.getItem('token');
             try {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/api/deals/${dealId}`, {
+                await axios.delete(`${process.env.REACT_APP_API_URL}/api/deals/${dealId}`, {
                     headers: { 'x-auth-token': token },
                 });
                 setDeals(deals.filter((deal) => deal.deal_id !== dealId));

@@ -32,8 +32,8 @@ const InvoiceForm = () => {
         const fetchRelatedData = async () => {
             try {
                 const [customersRes, dealsRes] = await Promise.all([
-                    axios.get(`${import.meta.env.VITE_API_URL}/api/customers`, { headers: { 'x-auth-token': token } }),
-                    axios.get(`${import.meta.env.VITE_API_URL}/api/deals`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/customers`, { headers: { 'x-auth-token': token } }),
+                    axios.get(`${process.env.REACT_APP_API_URL}/api/deals`, { headers: { 'x-auth-token': token } }),
                 ]);
                 setCustomers(customersRes.data);
                 setDeals(dealsRes.data);
@@ -41,7 +41,7 @@ const InvoiceForm = () => {
                 if (id) {
                     setIsEditMode(true);
                     setLoading(true);
-                    const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`, {
+                    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/invoices/${id}`, {
                         headers: { 'x-auth-token': token },
                     });
                     const invoiceData = res.data;
@@ -84,10 +84,10 @@ const InvoiceForm = () => {
                     status: formData.status,
                     amount_due: formData.amount_due,
                 };
-                await axios.put(`${import.meta.env.VITE_API_URL}/api/invoices/${id}`, updateData, config);
+                await axios.put(`${process.env.REACT_APP_API_URL}/api/invoices/${id}`, updateData, config);
                 alert('Invoice updated successfully!');
             } else {
-                await axios.post(`${import.meta.env.VITE_API_URL}/api/invoices`, formData, config);
+                await axios.post(`${process.env.REACT_APP_API_URL}/api/invoices`, formData, config);
                 alert('Invoice created successfully!');
             }
             navigate('/invoices');

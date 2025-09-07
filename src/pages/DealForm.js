@@ -21,7 +21,7 @@ const DealForm = () => {
         const fetchCustomers = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/customers`, {
+                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`, {
                     headers: { 'x-auth-token': token }
                 });
                 setCustomers(res.data);
@@ -42,7 +42,7 @@ const DealForm = () => {
         try {
             const token = localStorage.getItem('token');
             await axios.post(
-                `${import.meta.env.VITE_API_URL}/api/deals`,
+                `${process.env.REACT_APP_API_URL}/api/deals`,
                 formData,
                 {
                     headers: {
