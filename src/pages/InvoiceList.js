@@ -81,7 +81,7 @@ const InvoiceList = () => {
         >
             <div className="header-with-button">
                 <h2>Invoices</h2>
-                <Link to="/invoices/add" className="btn btn-customer">
+                <Link to="/invoices/add" className="btn add-button">
                     <IoMdAdd />
                     Create New Invoice
                 </Link>

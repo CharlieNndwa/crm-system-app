@@ -38,7 +38,7 @@ const CustomerForm = () => {
             console.log('New customer created with ID:', newCustomerId);
 
             alert('Customer added successfully!');
-            navigate(`/customers/${newCustomerId}`);
+            navigate('/customers');
         } catch (err) {
             console.error(err.response.data);
             alert('Failed to add customer. Please try again.');

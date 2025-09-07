@@ -59,7 +59,7 @@ const Dashboard = () => {
             className="content-container dashboard"
         >
             <div className="dashboard-header">
-                <h2>CRM Dashboard</h2>
+                <p>CRM Dashboard</p>
                 <p>Welcome to your CRM at a glance.</p>
             </div>
 

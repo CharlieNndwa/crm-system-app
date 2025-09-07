@@ -75,7 +75,7 @@ const EmployeeList = () => {
                 <h2>Employees</h2>
                 <Link to="/employees/add" className="btn btn-customer">
                     <IoMdAdd />
-                    Add New Employee
+                    Add Employee
                 </Link>
             </div>
             <div className="list-grid">

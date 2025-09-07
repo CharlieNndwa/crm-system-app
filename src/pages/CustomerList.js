@@ -71,9 +71,9 @@ const CustomerList = () => {
             transition={{ duration: 0.5 }}
             className="content-container"
         >
-            <div className="header-with-button">
+            <div className="page-header">
                 <h2>Customers</h2>
-                <Link to="/customers/add" className="btn btn-customer">
+                <Link to="/customers/add" className="add-button">
                     <IoMdAdd />
                     Add New Customer
                 </Link>
