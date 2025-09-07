@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaSignOutAlt, FaBars } from 'react-icons/fa';
 import axios from 'axios';
 import '../App.css';
+import crmLogo from '../assets/crm_logo.png'; // Import your logo image
 
 const Header = ({ toggleSidebar }) => {
     const [user, setUser] = useState(null);
@@ -42,8 +43,11 @@ const Header = ({ toggleSidebar }) => {
             <div className="mobile-menu-toggle" onClick={toggleSidebar}>
                 <FaBars />
             </div>
-            <div className="header-brand">
-                <h1><Link to="/">CRM System</Link></h1>
+            <div className="header-brand logo-container">
+                <Link to="/" className="logo-link">
+                    <img src={crmLogo} alt="CRM Logo" className="header-logo" />
+                    <h1>CRM SYSTEM</h1>
+                </Link>
             </div>
             <div className="header-right">
                 {user ? (
@@ -55,11 +59,7 @@ const Header = ({ toggleSidebar }) => {
                             Logout <FaSignOutAlt />
                         </button>
                     </div>
-                ) : (
-                    <Link to="/login" className="login-btn">
-                        Login / Sign Up
-                    </Link>
-                )}
+                ) : null}
             </div>
         </header>
     );

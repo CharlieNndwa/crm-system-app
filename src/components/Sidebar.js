@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
 import '../App.css';
+import crmLogo from '../assets/crm_logo.png'; // Import your logo image
 
 const navVariants = {
     hidden: { opacity: 0, x: -50 },
@@ -31,7 +32,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             variants={navVariants}
         >
             <div className="sidebar-header">
-                <h2>CRM System</h2>
+                <img src={crmLogo} alt="CRM System Logo" className="sidebar-logo" />
                 <div className="mobile-close-btn" onClick={toggleSidebar}>
                     <FaTimes />
                 </div>
