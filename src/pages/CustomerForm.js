@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// src/pages/CustomerForm.js
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import '../App.css';
@@ -12,7 +13,40 @@ const CustomerForm = () => {
         email: '',
         phone: '',
     });
+    const [isEditMode, setIsEditMode] = useState(false);
     const navigate = useNavigate();
+    const { id } = useParams();
+
+    useEffect(() => {
+        const fetchCustomer = async () => {
+            if (id) {
+                setIsEditMode(true);
+                const token = localStorage.getItem('token');
+                try {
+                    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers/${id}`, {
+                        headers: { 'x-auth-token': token },
+                    });
+                    const customerData = res.data;
+                    setFormData({
+                        first_name: customerData.first_name,
+                        last_name: customerData.last_name,
+                        company: customerData.company,
+                        email: customerData.email,
+                        phone: customerData.phone,
+                    });
+                } catch (err) {
+                    console.error('Error fetching customer:', err.response);
+                    if (err.response && err.response.status === 401) {
+                        alert('Session expired. Please log in again.');
+                        navigate('/login');
+                    } else {
+                        alert('Failed to fetch customer details.');
+                    }
+                }
+            }
+        };
+        fetchCustomer();
+    }, [id, navigate]);
 
     const { first_name, last_name, company, email, phone } = formData;
 
@@ -22,26 +56,29 @@ const CustomerForm = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        const token = localStorage.getItem('token');
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/customers`,
-                formData,
-                {
-                    headers: {
-                        'x-auth-token': token,
-                    },
-                }
-            );
-
-            const newCustomerId = res.data.customer.customer_id;
-            console.log('New customer created with ID:', newCustomerId);
-
-            alert('Customer added successfully!');
+            if (isEditMode) {
+                // UPDATE logic
+                await axios.put(
+                    `${process.env.REACT_APP_API_URL}/api/customers/${id}`,
+                    formData,
+                    { headers: { 'x-auth-token': token } }
+                );
+                alert('Customer updated successfully!');
+            } else {
+                // ADD NEW logic
+                await axios.post(
+                    `${process.env.REACT_APP_API_URL}/api/customers`,
+                    formData,
+                    { headers: { 'x-auth-token': token } }
+                );
+                alert('Customer added successfully!');
+            }
             navigate('/customers');
         } catch (err) {
             console.error(err.response.data);
-            alert('Failed to add customer. Please try again.');
+            alert(`Failed to ${isEditMode ? 'update' : 'add'} customer. Please try again.`);
         }
     };
 
@@ -52,7 +89,7 @@ const CustomerForm = () => {
             transition={{ duration: 0.5 }}
             className="content-container"
         >
-            <h2>Add New Customer</h2>
+            <h2>{isEditMode ? 'Edit Customer' : 'Add New Customer'}</h2>
             <form className="form-card" onSubmit={onSubmit}>
                 <div className="form-group">
                     <input
@@ -102,7 +139,9 @@ const CustomerForm = () => {
                         onChange={onChange}
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">Add Customer</button>
+                <button type="submit" className="btn btn-primary">
+                    {isEditMode ? 'Update Customer' : 'Add Customer'}
+                </button>
             </form>
         </motion.div>
     );

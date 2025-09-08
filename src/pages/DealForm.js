@@ -1,6 +1,6 @@
 // src/pages/DealForm.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import '../App.css';
@@ -13,25 +13,54 @@ const DealForm = () => {
         amount: '',
     });
     const [customers, setCustomers] = useState([]);
+    const [isEditMode, setIsEditMode] = useState(false);
     const navigate = useNavigate();
-
-    const { deal_name, customer_id, stage, amount } = formData;
+    const { id } = useParams();
 
     useEffect(() => {
-        const fetchCustomers = async () => {
+        const fetchData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Session expired. Please log in again.');
+                return navigate('/login');
+            }
+
             try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`, {
+                // Fetch customers for the dropdown
+                const customerRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/customers`, {
                     headers: { 'x-auth-token': token }
                 });
-                setCustomers(res.data);
+                setCustomers(customerRes.data);
+
+                // If in edit mode, fetch the specific deal
+                if (id) {
+                    setIsEditMode(true);
+                    const dealRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/deals/${id}`, {
+                        headers: { 'x-auth-token': token }
+                    });
+                    const dealData = dealRes.data;
+                    setFormData({
+                        deal_name: dealData.deal_name,
+                        customer_id: dealData.customer_id,
+                        stage: dealData.stage,
+                        amount: dealData.amount,
+                    });
+                }
             } catch (err) {
-                console.error('Error fetching customers:', err.response.data);
+                console.error('Error fetching data:', err.response);
+                if (err.response && err.response.status === 401) {
+                    alert('Session expired. Please log in again.');
+                    navigate('/login');
+                } else {
+                    alert('Failed to fetch data.');
+                }
             }
         };
 
-        fetchCustomers();
-    }, []);
+        fetchData();
+    }, [id, navigate]);
+
+    const { deal_name, customer_id, stage, amount } = formData;
 
     const onChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,23 +68,30 @@ const DealForm = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const token = localStorage.getItem('token');
-            await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/deals`,
-                formData,
-                {
-                    headers: {
-                        'x-auth-token': token,
-                    },
-                }
-            );
+        const token = localStorage.getItem('token');
 
-            alert('Deal added successfully!');
+        try {
+            if (isEditMode) {
+                // UPDATE logic
+                await axios.put(
+                    `${process.env.REACT_APP_API_URL}/api/deals/${id}`,
+                    formData,
+                    { headers: { 'x-auth-token': token } }
+                );
+                alert('Deal updated successfully!');
+            } else {
+                // ADD NEW logic
+                await axios.post(
+                    `${process.env.REACT_APP_API_URL}/api/deals`,
+                    formData,
+                    { headers: { 'x-auth-token': token } }
+                );
+                alert('Deal added successfully!');
+            }
             navigate('/deals');
         } catch (err) {
             console.error(err.response.data);
-            alert('Failed to add deal. Please try again.');
+            alert(`Failed to ${isEditMode ? 'update' : 'add'} deal. Please try again.`);
         }
     };
 
@@ -66,7 +102,7 @@ const DealForm = () => {
             transition={{ duration: 0.5 }}
             className="content-container"
         >
-            <h2>Add New Deal</h2>
+            <h2>{isEditMode ? 'Edit Deal' : 'Add New Deal'}</h2>
             <form className="form-card" onSubmit={onSubmit}>
                 <div className="form-group">
                     <input
@@ -90,6 +126,7 @@ const DealForm = () => {
                     </select>
                 </div>
                 <div className="form-group">
+                    <label htmlFor="stage">Stage</label>
                     <select name="stage" value={stage} onChange={onChange}>
                         <option value="Prospecting">Prospecting</option>
                         <option value="Qualification">Qualification</option>
@@ -109,7 +146,9 @@ const DealForm = () => {
                         required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">Add Deal</button>
+                <button type="submit" className="btn btn-primary">
+                    {isEditMode ? 'Update Deal' : 'Add Deal'}
+                </button>
             </form>
         </motion.div>
     );

@@ -1,6 +1,6 @@
 // src/pages/EmployeeForm.js
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import '../App.css';
@@ -12,11 +12,47 @@ const EmployeeForm = () => {
         email: '',
         job_title: '',
         department: '',
-        // Add new state fields
         phone: '',
         hire_date: '',
     });
+    const [isEditMode, setIsEditMode] = useState(false);
     const navigate = useNavigate();
+    const { id } = useParams(); // Get the ID from the URL
+
+    // This effect runs once when the component loads to fetch employee data if an ID exists
+    useEffect(() => {
+        const fetchEmployee = async () => {
+            if (id) {
+                setIsEditMode(true);
+                const token = localStorage.getItem('token');
+                try {
+                    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/employees/${id}`, {
+                        headers: { 'x-auth-token': token },
+                    });
+                    const employeeData = res.data;
+                    setFormData({
+                        first_name: employeeData.first_name,
+                        last_name: employeeData.last_name,
+                        email: employeeData.email,
+                        job_title: employeeData.job_title,
+                        department: employeeData.department,
+                        phone: employeeData.phone,
+                        hire_date: employeeData.hire_date ? employeeData.hire_date.split('T')[0] : '',
+                    });
+                } catch (err) {
+                    console.error('Error fetching employee:', err.response);
+                    // Handle unauthorized access or other errors
+                    if (err.response && err.response.status === 401) {
+                        alert('Session expired. Please log in again.');
+                        navigate('/login');
+                    } else {
+                        alert('Failed to fetch employee details.');
+                    }
+                }
+            }
+        };
+        fetchEmployee();
+    }, [id, navigate]); // Rerun the effect when the ID or navigate function changes
 
     const { first_name, last_name, email, job_title, department, phone, hire_date } = formData;
 
@@ -26,23 +62,38 @@ const EmployeeForm = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const token = localStorage.getItem('token');
-            await axios.post(
-                `${process.env.REACT_APP_API_URL}/api/employees`,
-                formData,
-                {
-                    headers: {
-                        'x-auth-token': token,
-                    },
-                }
-            );
+        const token = localStorage.getItem('token');
 
-            alert('Employee added successfully!');
+        try {
+            if (isEditMode) {
+                // UPDATE logic
+                await axios.put(
+                    `${process.env.REACT_APP_API_URL}/api/employees/${id}`,
+                    formData,
+                    {
+                        headers: {
+                            'x-auth-token': token,
+                        },
+                    }
+                );
+                alert('Employee updated successfully!');
+            } else {
+                // ADD NEW logic
+                await axios.post(
+                    `${process.env.REACT_APP_API_URL}/api/employees`,
+                    formData,
+                    {
+                        headers: {
+                            'x-auth-token': token,
+                        },
+                    }
+                );
+                alert('Employee added successfully!');
+            }
             navigate('/employees');
         } catch (err) {
             console.error(err.response.data);
-            alert('Failed to add employee. Please try again.');
+            alert(`Failed to ${isEditMode ? 'update' : 'add'} employee. Please try again.`);
         }
     };
 
@@ -53,7 +104,7 @@ const EmployeeForm = () => {
             transition={{ duration: 0.5 }}
             className="content-container"
         >
-            <h2>Add New Employee</h2>
+            <h2>{isEditMode ? 'Edit Employee' : 'Add New Employee'}</h2>
             <form className="form-card" onSubmit={onSubmit}>
                 <div className="form-group">
                     <input
@@ -85,7 +136,6 @@ const EmployeeForm = () => {
                         required
                     />
                 </div>
-                {/* Add new input fields here */}
                 <div className="form-group">
                     <input
                         type="text"
@@ -122,7 +172,9 @@ const EmployeeForm = () => {
                         onChange={onChange}
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">Add Employee</button>
+                <button type="submit" className="btn btn-primary">
+                    {isEditMode ? 'Update Employee' : 'Add Employee'}
+                </button>
             </form>
         </motion.div>
     );
